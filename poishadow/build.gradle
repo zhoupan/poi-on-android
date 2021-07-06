@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'org.apache.poi:poi-ooxml:3.17'
     implementation 'com.fasterxml:aalto-xml:1.1.0'
 }
@@ -36,9 +37,8 @@ shadowJar {
     relocate 'javax.xml.namespace', 'org.apache.poi.javax.xml.namespace'
     relocate 'javax.xml.stream', 'org.apache.poi.javax.xml.stream'
     relocate 'javax.xml.XMLConstants', 'org.apache.poi.javax.xml.XMLConstants'
-    // java.awt is not available, but class Color is used in APIs in POI, therefore
-    // relocate this class to another one where we can include a rewrite
-    relocate 'java.awt.Color', 'org.apache.poi.java.awt.Color'
+    // java.awt is not available for android, but used in APIs in POI
+    relocate 'java.awt', 'net.windward.android.awt'
 }
 
 jar.dependsOn shadowJar

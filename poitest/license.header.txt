@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 GetWrath.
+ * Copyright (c) $YEAR GetWrath.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,3 @@
  * limitations under the License.
  *
  */
-package org.apache.poi.poifs.crypt;
-
-import static junit.framework.Assert.assertNotNull;
-
-import org.apache.poi.poifs.crypt.dsig.SignatureInfo;
-
-public class TestSignatureInfo {
-  public void testConstruct() {
-    // simple test which just verifies that we can load the class and all dependend classes
-    SignatureInfo info = new SignatureInfo();
-    assertNotNull(info);
-  }
-}

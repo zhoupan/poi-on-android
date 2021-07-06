@@ -1,11 +1,35 @@
 apply plugin: 'com.android.application'
+apply plugin: "com.diffplug.spotless"
+apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix' // should be applied after com.android.application
 
-repositories {
-    google()
-    jcenter()
+spotless {
+    format 'misc', {
+        // define the files to apply `misc` to
+        target '*.gradle', '*.md', '.gitignore'
+        // define the steps to apply to those files
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+    }
+    java {
+        target 'src/*/java/**/*.java'
+        importOrder()
+        removeUnusedImports()
+        googleJavaFormat('1.8')
+        licenseHeaderFile('license.header.txt')
+    }
+    sql {
+        target 'src/main/java/assets/**/*.sql'
+        dbeaver().configFile('dbeaver.properties')
+    }
+    format 'xml', {
+        target 'src/**/*.xml'
+        prettier(['@prettier/plugin-xml': '0.13.0']).configFile('.prettierrc.json')
+    }
 }
 
 dependencies {
+    //implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.multidex:multidex:2.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     // commons-text 1.8 fails due to Java 8 dependency
@@ -16,12 +40,16 @@ dependencies {
     implementation 'junit:junit:4.13'
 
     // newer versions of xmlsec are compiled with JDK 8 which does not work in Android Studio 2.x!
-    implementation ('org.apache.santuario:xmlsec:2.0.0') {
+    implementation('org.apache.santuario:xmlsec:2.0.0') {
         // break compilation because it includes stax-api which is under forbidden package 'javax.xml.stream'
         exclude group: 'org.codehaus.woodstox'
     }
-
     implementation files('../poishadow/build/libs/poishadow-all.jar')
+
+    // backporting java8
+    implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.2' // for backporting streams
+    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.2' // for backporting future
+    implementation 'org.threeten:threetenbp:1.4.4' // for backporting time
 
     // Testing-only dependencies
     androidTestImplementation 'androidx.test:core:1.3.0-rc02'
@@ -67,6 +95,8 @@ android {
         abortOnError false
     }
 
+
+
     // error about duplicates if some of these are not excluded
     packagingOptions {
         pickFirst 'META-INF/DEPENDENCIES.txt'
@@ -79,5 +109,13 @@ android {
         pickFirst 'META-INF/license.txt'
         pickFirst 'META-INF/dependencies.txt'
         pickFirst 'META-INF/LGPL2.1'
+    }
+
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        // see:https://developer.android.com/studio/write/java8-support
+        //coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
